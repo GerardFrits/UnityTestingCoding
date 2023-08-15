@@ -1,0 +1,30 @@
++---------------------------------+
+|           NetworkManager        |
++---------------------------------+
+| - workerThreads: Thread[]       |
+| - requestQueue: ConcurrentQueue |
+| - responseQueue: ConcurrentQueue|
++---------------------------------+
+| + Initialize(): void            |
+| + SendRequest(request): void    |
+| - ProcessRequests(): void       |
+| - ProcessResponses(): void      |
+| - WorkerThread(): void          |
++---------------------------------+
+
+NetworkManager 网络模块的管理类。
+workerThreads 工作线程数组，并行处理网络请求和响应。
+requestQueue 请求队列，存储待处理的网络请求。
+responseQueue 响应队列，存储已接收到的网络响应。
+Initialize() 初始化网络管理类和工作线程。
+SendRequest(request) 发送网络请求。
+ProcessRequests() 在工作线程中循环处理请求队列中的请求。
+ProcessResponses() 在工作线程中循环处理响应队列中的响应。
+
+1. 在主线程创建 NetworkManager 对象。
+2. 玩家根据ip登录对应服务器，初始化网络连接（创建对应socket，每个连接为一个线程）。
+3. 网络线程负责收发和解析网络数据。
+
+
+
+

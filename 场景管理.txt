@@ -1,0 +1,86 @@
+Q：假定一个2D场景中有数量众多且分布不均匀的（10w+）gameobject，摄像机在场景中自由移动，请按照您对场景管理的理解，自定设计目标，设计一个管理机制来管理这些gameobject，可用伪代码表达，并辅以必要的文字说明。
+
+A：利用四叉树进行平面空间的场景管理。
+1. 将整个场景进行四叉分割，把场景按空间平均分割成多个Tile单元网格。
+2. 根据游戏对象的位置将其分配到对应Tile，每个Tile维护一个gameobject数组，可以快速获取某个区域的游戏对象。
+3. 按Tile网格处理数据，摄像机移动时，计算出视野范围的Tile，从对应Tile获取对象，不用遍历所有对象。
+
+代码，四叉树节点类，游戏对象的添加，移除和查询。
+
+public class QuadTreeNode
+{
+    public Rect boundary;
+    public List<GameObject> objects;
+    public List<QuadTreeNode> children;
+
+    public QuadTreeNode(Rect boundary)
+    {
+        this.boundary = boundary;
+        objects = new List<GameObject>();
+        children = new List<QuadTreeNode>();
+    }
+
+    public bool Insert(GameObject gameObject)
+    {
+        if (!boundary.Contains(gameObject.position))
+            return false;
+
+        objects.Add(gameObject);
+            return true;
+    }
+
+    private void Subdivide()
+    {
+        float x = boundary.x;
+        float y = boundary.y;
+        float w = boundary.width / 2;
+        float h = boundary.height / 2;
+
+        var nw = new QuadTreeNode(new Rect(x, y, w, h));
+        var ne = new QuadTreeNode(new Rect(x + w, y, w, h));
+        var sw = new QuadTreeNode(new Rect(x, y + h, w, h));
+        var se = new QuadTreeNode(new Rect(x + w, y + h, w, h));
+
+        children.AddRange(new[] { nw, ne, sw, se });
+    }
+
+    public List<GameObject> QueryRange(Rect range)
+    {
+        var objectsInRange = new List<GameObject>();
+
+        if (!boundary.Intersects(range))
+            return objectsInRange;
+
+        foreach (var obj in objects)
+        {
+            if (range.Contains(obj.position))
+                objectsInRange.Add(obj);
+        }
+
+        foreach (var child in children)
+            objectsInRange.AddRange(child.QueryRange(range));
+
+        return objectsInRange;
+    }
+}
+
+public class QuadTree
+{
+    private QuadTreeNode root;
+
+    public QuadTree(Rect boundary)
+    {
+        root = new QuadTreeNode(boundary);
+    }
+
+    public bool Insert(GameObject gameObject)
+    {
+        return root.Insert(gameObject);
+    }
+
+    public List<GameObject> QueryRange(Rect range)
+    {
+        return root.QueryRange(range);
+    }
+}
+
