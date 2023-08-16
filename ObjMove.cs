@@ -91,11 +91,11 @@ public class ObjMove : MonoBehaviour
 			{
 				if (t < 0.5f)
 				{
-                    t = Mathf.Lerp(0, 1, t * t);
+                    t = 0.5f * Mathf.Lerp(0, 2, 4 * t * t);
                 }
 				else
 				{
-                    t = Mathf.Lerp(0, 1, Mathf.Sqrt(t));
+                    t = 0.5f * Mathf.Lerp(0, 2, Mathf.Sqrt(2 * t));
                 }
 			}
             movingObj.transform.position = Vector3.Lerp(beginPos, endPos, t);
